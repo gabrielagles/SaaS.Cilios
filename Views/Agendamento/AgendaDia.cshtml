@@ -1,0 +1,97 @@
+@inject SaaS.Cilios.Data.AppDbContext Db
+@model AgendaDiaViewModel
+@{
+    ViewData["Title"] = "Agenda do Dia";
+    Layout = "_AuthLayout";
+    var config = Db.ConfiguracoesConta.FirstOrDefault();
+    var nomeExibicao = config?.NomeExibicao ?? "Rafa";
+    var inicial = string.IsNullOrEmpty(nomeExibicao) ? "R" : nomeExibicao.Substring(0, 1).ToUpper();
+}
+
+<div class="agenda-header">
+    <a class="voltar-link" asp-action="Calendario" asp-route-mes="@Model.DiaSelecionado.Month" asp-route-ano="@Model.DiaSelecionado.Year">&lsaquo; Voltar</a>
+    <a class="avatar-wrap" asp-controller="Conta" asp-action="Index" title="Editar conta">
+        @if (!string.IsNullOrEmpty(config?.FotoCaminho))
+        {
+            <img src="@config.FotoCaminho?v=@config.FotoVersao" alt="" class="avatar-circle avatar-photo"
+                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+            <div class="avatar-circle" style="display:none;">@inicial</div>
+        }
+        else
+        {
+            <div class="avatar-circle">@inicial</div>
+        }
+    </a>
+</div>
+
+<h1 class="agenda-title">Agenda @nomeExibicao</h1>
+
+<div class="agenda-date-row">
+    <h2>@Model.DiaSelecionado.ToString("dd/MM/yyyy")</h2>
+    <span>@Model.AgendamentosDoDia.Count agendamento@(Model.AgendamentosDoDia.Count != 1 ? "s" : "")</span>
+</div>
+
+@if (!Model.AgendamentosDoDia.Any())
+{
+    <p class="agenda-empty">Nenhum agendamento neste dia.</p>
+}
+else
+{
+    @foreach (var ag in Model.AgendamentosDoDia)
+    {
+        <div class="appt-card" style="border-left-color:@(ag.Servico?.Cor ?? "#CC8AA0")" onclick="this.classList.toggle('open')">
+            <div class="appt-summary">
+                <div>
+                    <div class="appt-hora">@ag.DataHora.ToString("HH'h'mm")</div>
+                    <div class="appt-cliente">@ag.ClienteNome</div>
+                </div>
+                <div>
+                    <div class="appt-servico">@ag.Servico?.Nome</div>
+                    <div class="appt-valor">R$ @ag.Valor.ToString("N2")</div>
+                </div>
+            </div>
+            <div class="appt-detail-wrapper">
+                <div class="appt-detail-inner">
+                    <div class="appt-detail">
+                        <span>Telefone: @(string.IsNullOrWhiteSpace(ag.ClienteTelefone) ? "não informado" : ag.ClienteTelefone)</span>
+                        <span>Status: @(ag.Concluido ? "Concluído" : "Pendente")</span>
+                        <div style="display:flex; gap:16px; margin-top:4px;">
+                            <a asp-controller="Agendamento" asp-action="Edit" asp-route-id="@ag.Id" onclick="event.stopPropagation()">Editar</a>
+                            <a asp-controller="Agendamento" asp-action="Delete" asp-route-id="@ag.Id" onclick="event.stopPropagation()">Excluir</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+}
+
+<a asp-action="Create" asp-controller="Agendamento" class="btn-pill" style="display:block; text-align:center; text-decoration:none; margin: 18px 0;">+ Novo agendamento nesse dia</a>
+
+@if (Model.OutrosDias.Any())
+{
+    <div class="section-label">Outros dias do mês</div>
+    <div class="agenda-list">
+        @foreach (var dia in Model.OutrosDias)
+        {
+            <div class="agenda-list-item" onclick="this.classList.toggle('open')">
+                <div class="agenda-list-summary">
+                    <span>@dia.Data.ToString("dd/MM/yyyy") - @dia.Agendamentos.Count agendamento@(dia.Agendamentos.Count != 1 ? "s" : "")</span>
+                    <span class="chevron">&#8964;</span>
+                </div>
+                <div class="agenda-list-detail">
+                    @foreach (var ag in dia.Agendamentos)
+                    {
+                        <div class="agenda-list-detail-row">
+                            <span>@ag.DataHora.ToString("HH'h'mm") - @ag.ClienteNome</span>
+                            <span>@ag.Servico?.Nome</span>
+                        </div>
+                    }
+                    <div class="agenda-list-detail-row" style="margin-top:6px;">
+                        <a asp-action="AgendaDia" asp-route-data="@dia.Data.ToString("yyyy-MM-dd")" onclick="event.stopPropagation()">Ver dia completo &rarr;</a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}

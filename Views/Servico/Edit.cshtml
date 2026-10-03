@@ -1,0 +1,60 @@
+@model Servico
+@{ ViewData["Title"] = "Editar Serviço"; }
+
+<div class="form-card">
+    <h1>Editar Serviço</h1>
+
+    <form asp-action="Edit" method="post">
+        <input type="hidden" asp-for="Id" />
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+        <div class="field-group">
+            <label asp-for="Nome" class="field-label"></label>
+            <input asp-for="Nome" class="input-pill" />
+            <span asp-validation-for="Nome" class="text-danger"></span>
+        </div>
+
+        <div class="field-group">
+            <label asp-for="Cor" class="field-label"></label>
+            <input asp-for="Cor" type="color" class="form-control form-control-color" />
+        </div>
+
+        <div class="field-group">
+            <label asp-for="Preco" class="field-label"></label>
+            <input type="text" inputmode="numeric" id="PrecoVisivel" class="input-pill" placeholder="0,00" autocomplete="off" />
+            <input type="hidden" asp-for="Preco" id="Preco" />
+            <span asp-validation-for="Preco" class="text-danger"></span>
+        </div>
+
+        <label class="toggle-row">
+            <input asp-for="Ativo" class="toggle-input" />
+            <span class="toggle-track"><span class="toggle-thumb"></span></span>
+            Serviço ativo
+        </label>
+
+        <div class="form-actions">
+            <button type="submit" class="btn-pill">Salvar</button>
+            <a asp-action="Index" class="btn-pill-ghost">Cancelar</a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <script>
+        var visivel = document.getElementById('PrecoVisivel');
+        var oculto = document.getElementById('Preco');
+        function formatar(centavos) {
+            return (centavos / 100).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+        function atualizar() {
+            var digitos = visivel.value.replace(/\D/g, '');
+            if (digitos === '') digitos = '0';
+            var centavos = parseInt(digitos, 10);
+            visivel.value = formatar(centavos);
+            oculto.value = (centavos / 100).toFixed(2).replace('.', ',');
+        }
+        var centavosIniciais = Math.round(parseFloat(oculto.value || '0') * 100);
+        visivel.value = formatar(centavosIniciais);
+        visivel.addEventListener('input', atualizar);
+    </script>
+}

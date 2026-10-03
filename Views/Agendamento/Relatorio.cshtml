@@ -1,0 +1,118 @@
+@model List<Agendamento>
+@{
+    ViewData["Title"] = "Balanço Mensal";
+    var meses = new[] { "", "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro" };
+    int mesAtual = (int)ViewBag.Mes;
+    int anoAtual = (int)ViewBag.Ano;
+}
+
+<h1>Balanço Mensal</h1>
+
+<form method="get" class="balance-filter">
+    <div class="field-group">
+        <label class="field-label">Mês</label>
+        <select name="mes" class="input-pill select-pill">
+            @for (int m = 1; m <= 12; m++)
+            {
+                if (m == mesAtual) { <option value="@m" selected>@meses[m]</option> }
+                else { <option value="@m">@meses[m]</option> }
+            }
+        </select>
+    </div>
+    <div class="field-group">
+        <label class="field-label">Ano</label>
+        <input type="number" name="ano" class="input-pill" value="@anoAtual" style="width: 110px;" />
+    </div>
+    <div class="field-group">
+        <label class="field-label" style="visibility:hidden;">Ação</label>
+        <button type="submit" class="btn-pill btn-pill-auto">Filtrar</button>
+    </div>
+</form>
+
+<div class="balance-grid">
+    <div class="balance-card success">
+        <div class="balance-card-top">
+            <span class="balance-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </span>
+            <span class="balance-label">Recebido (concluídos)</span>
+        </div>
+        <span class="balance-value">R$ @(((decimal)ViewBag.TotalConcluidos).ToString("N2"))</span>
+    </div>
+    <div class="balance-card warning">
+        <div class="balance-card-top">
+            <span class="balance-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </span>
+            <span class="balance-label">A receber (pendentes)</span>
+        </div>
+        <span class="balance-value">R$ @(((decimal)ViewBag.TotalPendentes).ToString("N2"))</span>
+    </div>
+    <div class="balance-card primary">
+        <div class="balance-card-top">
+            <span class="balance-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 19V10M12 19V5M19 19v-7" stroke-linecap="round"/></svg>
+            </span>
+            <span class="balance-label">Total Geral · @ViewBag.QuantidadeAtendimentos atendimentos</span>
+        </div>
+        <span class="balance-value">R$ @(((decimal)ViewBag.TotalGeral).ToString("N2"))</span>
+    </div>
+</div>
+
+<div class="section-label">Por Serviço</div>
+@if (!((IEnumerable<dynamic>)ViewBag.PorServico).Any())
+{
+    <div class="table-empty">
+        <span class="script">Nada por aqui ainda</span>
+        <p>Nenhum agendamento neste período.</p>
+    </div>
+}
+else
+{
+    <div class="table-card">
+        <table class="table">
+            <thead><tr><th>Serviço</th><th>Qtd</th><th>Total</th></tr></thead>
+            <tbody>
+                @foreach (var item in ViewBag.PorServico)
+                {
+                    <tr>
+                        <td>@item.Servico</td>
+                        <td>@item.Quantidade</td>
+                        <td>R$ @(((decimal)item.Total).ToString("N2"))</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+<div class="section-label">Atendimentos do mês</div>
+@if (!Model.Any())
+{
+    <div class="table-empty">
+        <span class="script">Nada por aqui ainda</span>
+        <p>Nenhum atendimento neste período.</p>
+    </div>
+}
+else
+{
+    <div class="table-card">
+        <table class="table">
+            <thead>
+                <tr><th>Cliente</th><th>Serviço</th><th>Data</th><th>Valor</th><th>Status</th></tr>
+            </thead>
+            <tbody>
+                @foreach (var ag in Model)
+                {
+                    <tr>
+                        <td>@ag.ClienteNome</td>
+                        <td><span class="badge" style="background-color:@ag.Servico?.Cor">@ag.Servico?.Nome</span></td>
+                        <td>@ag.DataHora.ToString("dd/MM/yyyy HH:mm")</td>
+                        <td>R$ @ag.Valor.ToString("N2")</td>
+                        <td>@(ag.Concluido ? "Concluído" : "Pendente")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}

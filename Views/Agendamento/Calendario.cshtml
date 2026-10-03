@@ -1,0 +1,107 @@
+@inject SaaS.Cilios.Data.AppDbContext Db
+@model CalendarioViewModel
+@{
+    ViewData["Title"] = "Agenda";
+    Layout = "_AuthLayout";
+    var meses = new[] { "", "Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez" };
+    var weekdays = new[] { "Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sab" };
+    var config = Db.ConfiguracoesConta.FirstOrDefault();
+    var nomeExibicao = config?.NomeExibicao ?? "Rafa";
+
+    var mesAnterior = Model.Mes == 1 ? 12 : Model.Mes - 1;
+    var anoDoMesAnterior = Model.Mes == 1 ? Model.Ano - 1 : Model.Ano;
+    var mesSeguinte = Model.Mes == 12 ? 1 : Model.Mes + 1;
+    var anoDoMesSeguinte = Model.Mes == 12 ? Model.Ano + 1 : Model.Ano;
+}
+
+<div class="agenda-header">
+    <a class="voltar-link" asp-controller="Home" asp-action="Index">&lsaquo; Voltar</a>
+    <a class="avatar-wrap" asp-controller="Conta" asp-action="Index" title="Editar conta">
+        @if (!string.IsNullOrEmpty(config?.FotoCaminho))
+        {
+            <img src="@config.FotoCaminho?v=@config.FotoVersao" alt="" class="avatar-circle avatar-photo" />
+        }
+        else
+        {
+            <div class="avatar-circle">@nomeExibicao.Substring(0, 1).ToUpper()</div>
+        }
+    </a>
+</div>
+
+<h1 class="agenda-title">Agenda @nomeExibicao</h1>
+
+<div class="calendar-card">
+    <div class="calendar-nav">
+        <a class="nav-arrow" asp-action="Calendario" asp-route-mes="@mesAnterior" asp-route-ano="@anoDoMesAnterior">&lsaquo;</a>
+
+        <form method="get" asp-action="Calendario" id="formCalendario" style="display:flex; gap:8px;">
+            <select name="mes" onchange="document.getElementById('formCalendario').submit()">
+                @for (int m = 1; m <= 12; m++)
+                {
+                    if (m == Model.Mes) { <option value="@m" selected>@meses[m]</option> }
+                    else { <option value="@m">@meses[m]</option> }
+                }
+            </select>
+            <select name="ano" onchange="document.getElementById('formCalendario').submit()">
+                @for (int a = DateTime.Now.Year - 2; a <= DateTime.Now.Year + 2; a++)
+                {
+                    if (a == Model.Ano) { <option value="@a" selected>@a</option> }
+                    else { <option value="@a">@a</option> }
+                }
+            </select>
+        </form>
+
+        <a class="nav-arrow" asp-action="Calendario" asp-route-mes="@mesSeguinte" asp-route-ano="@anoDoMesSeguinte">&rsaquo;</a>
+    </div>
+
+    <div class="calendar-grid">
+        @foreach (var wd in weekdays)
+        {
+            <div class="weekday">@wd</div>
+        }
+
+        @foreach (var dia in Model.Dias)
+        {
+            var classes = "day";
+            if (!dia.DoMesAtual) { classes += " muted"; }
+            if (dia.QuantidadeAgendamentos > 0) { classes += " has-appt"; }
+            if (dia.Hoje) { classes += " today"; }
+
+            <a class="@classes" asp-action="AgendaDia" asp-route-data="@dia.Data.ToString("yyyy-MM-dd")" title="@(dia.QuantidadeAgendamentos > 0 ? dia.QuantidadeAgendamentos + " agendamento(s)" : "")">
+                @dia.Data.Day
+            </a>
+        }
+    </div>
+</div>
+
+<div class="section-label">Resumo do mês</div>
+<div class="agenda-list">
+    @if (!Model.AgendaPorDia.Any())
+    {
+        <p class="agenda-empty">Nenhum agendamento neste mês.</p>
+    }
+    else
+    {
+        @foreach (var dia in Model.AgendaPorDia)
+        {
+            <div class="agenda-list-item" onclick="this.classList.toggle('open')">
+                <div class="agenda-list-summary">
+                    <span>@dia.Data.ToString("dd/MM/yyyy") - @dia.Agendamentos.Count agendamento@(dia.Agendamentos.Count != 1 ? "s" : "")</span>
+                    <span class="chevron">&#8964;</span>
+                </div>
+                <div class="agenda-list-detail">
+                    @foreach (var ag in dia.Agendamentos)
+                    {
+                        <div class="agenda-list-detail-row">
+                            <span>@ag.DataHora.ToString("HH'h'mm") - @ag.ClienteNome</span>
+                            <span>@ag.Servico?.Nome</span>
+                        </div>
+                    }
+                    <div class="agenda-list-detail-row" style="margin-top:6px;">
+                        <a asp-action="AgendaDia" asp-route-data="@dia.Data.ToString("yyyy-MM-dd")" onclick="event.stopPropagation()">Ver dia completo &rarr;</a>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+</div>

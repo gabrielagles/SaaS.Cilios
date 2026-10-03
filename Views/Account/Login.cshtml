@@ -1,0 +1,28 @@
+@{
+    ViewData["Title"] = "Entrar";
+    Layout = "_AuthLayout";
+    var erro = ViewBag.Erro as string;
+}
+
+<div class="auth-crown">
+    <img src="~/img/coroa.png" alt="" />
+</div>
+
+<h1 class="brand-name">RAFAELA LAVIERI BEAUTY</h1>
+<p class="brand-script">Studio</p>
+<hr class="brand-divider" />
+
+<div class="login-box">
+    <h2>BEAUTY BOSS</h2>
+
+    @if (!string.IsNullOrEmpty(erro))
+    {
+        <div class="auth-error">@erro</div>
+    }
+
+    <form asp-controller="Account" asp-action="Login" method="post">
+        <input type="text" name="usuario" class="input-pill" placeholder="Login" autocomplete="username" required />
+        <input type="password" name="senha" class="input-pill" placeholder="Senha" autocomplete="current-password" required />
+        <button type="submit" class="btn-pill">Entrar</button>
+    </form>
+</div>

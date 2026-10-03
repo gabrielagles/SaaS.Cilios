@@ -1,0 +1,115 @@
+@model Agendamento
+@{
+    ViewData["Title"] = "Editar Agendamento";
+    var servicos = (List<Servico>)ViewBag.Servicos;
+}
+
+<div class="form-card">
+    <h1>Editar Agendamento</h1>
+
+    <form asp-action="Edit" method="post">
+        <input type="hidden" asp-for="Id" />
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+        <div class="field-group">
+            <label asp-for="ClienteNome" class="field-label"></label>
+            <input asp-for="ClienteNome" class="input-pill" />
+            <span asp-validation-for="ClienteNome" class="text-danger"></span>
+        </div>
+
+        <div class="field-group">
+            <label asp-for="ClienteTelefone" class="field-label"></label>
+            <input asp-for="ClienteTelefone" class="input-pill" />
+        </div>
+
+        <div class="field-group">
+            <label asp-for="ServicoId" class="field-label"></label>
+            <select asp-for="ServicoId" id="ServicoId" class="input-pill select-pill">
+                @foreach (var s in servicos)
+                {
+                    <option value="@s.Id" data-preco="@s.Preco.ToString(System.Globalization.CultureInfo.InvariantCulture)">@s.Nome (R$ @s.Preco.ToString("N2"))</option>
+                }
+            </select>
+            <span asp-validation-for="ServicoId" class="text-danger"></span>
+        </div>
+
+        <div class="field-row">
+            <div class="field-group">
+                <label class="field-label">Data</label>
+                <input type="date" id="DataVisivel" class="input-pill" />
+            </div>
+            <div class="field-group">
+                <label class="field-label">Horário</label>
+                <input type="time" id="HoraVisivel" class="input-pill" />
+            </div>
+        </div>
+        <input type="hidden" name="DataHora" id="DataHora" value="@Model.DataHora.ToString("yyyy-MM-ddTHH:mm")" />
+        <span asp-validation-for="DataHora" class="text-danger"></span>
+
+        <div class="field-group">
+            <label asp-for="Valor" class="field-label"></label>
+            <input type="text" inputmode="numeric" id="ValorVisivel" class="input-pill" placeholder="0,00" autocomplete="off" />
+            <input type="hidden" asp-for="Valor" id="Valor" />
+            <span asp-validation-for="Valor" class="text-danger"></span>
+        </div>
+
+        <label class="toggle-row">
+            <input asp-for="Concluido" class="toggle-input" />
+            <span class="toggle-track"><span class="toggle-thumb"></span></span>
+            Já foi concluído
+        </label>
+
+        <div class="form-actions">
+            <button type="submit" class="btn-pill">Salvar alterações</button>
+            <a asp-action="Index" class="btn-pill-ghost">Cancelar</a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <script>
+        var valorVisivel = document.getElementById('ValorVisivel');
+        var valorOculto = document.getElementById('Valor');
+
+        function formatarMoeda(centavos) {
+            return (centavos / 100).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+        function atualizarValorVisivel() {
+            var digitos = valorVisivel.value.replace(/\D/g, '');
+            if (digitos === '') digitos = '0';
+            var centavos = parseInt(digitos, 10);
+            valorVisivel.value = formatarMoeda(centavos);
+            valorOculto.value = (centavos / 100).toFixed(2).replace('.', ',');
+        }
+        function definirValor(reais) {
+            var centavos = Math.round(parseFloat(reais || '0') * 100);
+            valorVisivel.value = formatarMoeda(centavos);
+            valorOculto.value = (centavos / 100).toFixed(2).replace('.', ',');
+        }
+        definirValor(valorOculto.value);
+        valorVisivel.addEventListener('input', atualizarValorVisivel);
+
+        document.getElementById('ServicoId').addEventListener('change', function () {
+            var selected = this.options[this.selectedIndex];
+            var preco = selected.getAttribute('data-preco');
+            if (preco) { definirValor(preco); }
+        });
+
+        (function () {
+            var hidden = document.getElementById('DataHora');
+            var dataVisivel = document.getElementById('DataVisivel');
+            var horaVisivel = document.getElementById('HoraVisivel');
+            var partes = hidden.value.split('T');
+            dataVisivel.value = partes[0] || '';
+            horaVisivel.value = partes[1] ? partes[1].substring(0, 5) : '';
+            function atualizarHidden() {
+                if (dataVisivel.value && horaVisivel.value) {
+                    hidden.value = dataVisivel.value + 'T' + horaVisivel.value;
+                }
+            }
+            dataVisivel.addEventListener('change', atualizarHidden);
+            horaVisivel.addEventListener('change', atualizarHidden);
+            dataVisivel.closest('form').addEventListener('submit', atualizarHidden);
+        })();
+    </script>
+}

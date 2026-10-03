@@ -1,0 +1,17 @@
+@model Servico
+@{ ViewData["Title"] = "Excluir Serviço"; }
+
+<div class="confirm-card">
+    <div class="confirm-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0-1 14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2L4 6h16z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    <h1>Excluir serviço?</h1>
+    <p class="confirm-detail">@Model.Nome</p>
+    <p style="margin-top:-12px; margin-bottom:24px;">Se houver agendamentos vinculados, o serviço será apenas desativado em vez de excluído.</p>
+
+    <form asp-action="Delete" method="post">
+        <input type="hidden" asp-for="Id" />
+        <button type="submit" class="btn-pill-danger">Sim, excluir</button>
+    </form>
+    <a asp-action="Index" class="btn-pill-ghost">Cancelar</a>
+</div>

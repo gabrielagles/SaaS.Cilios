@@ -1,0 +1,71 @@
+@model ConfiguracaoConta
+@{
+    ViewData["Title"] = "Conta";
+    var inicial = string.IsNullOrEmpty(Model.NomeExibicao) ? "R" : Model.NomeExibicao.Substring(0, 1).ToUpper();
+}
+
+<h1>Conta</h1>
+<p class="form-hint-plain">Personalize como seu nome e o painel aparecem no sistema.</p>
+
+<div class="form-card">
+    <form asp-controller="Conta" asp-action="Editar" method="post" enctype="multipart/form-data">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+        <div class="avatar-upload">
+            <div class="avatar-upload-preview">
+                @if (!string.IsNullOrEmpty(Model.FotoCaminho))
+                {
+                    <img id="avatarPreview" src="@Model.FotoCaminho?v=@Model.FotoVersao" alt="" />
+                }
+                else
+                {
+                    <div id="avatarPreview" class="avatar-upload-initial">@inicial</div>
+                }
+            </div>
+            <label for="foto" class="avatar-upload-btn" title="Trocar foto">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 8a2 2 0 0 1 2-2h1.5l1-1.5h7l1 1.5H18a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8z" stroke-linejoin="round"/><circle cx="12" cy="13" r="3.5"/></svg>
+            </label>
+            <input type="file" name="foto" id="foto" class="avatar-upload-input" accept="image/png, image/jpeg, image/webp" />
+        </div>
+        <p class="avatar-upload-hint">JPG, PNG ou WEBP — até 3 MB</p>
+
+        <div class="field-group">
+            <label asp-for="NomeExibicao" class="field-label"></label>
+            <input asp-for="NomeExibicao" class="input-pill" placeholder="Seu nome" />
+            <span asp-validation-for="NomeExibicao" class="text-danger"></span>
+        </div>
+
+        <div class="field-group">
+            <label asp-for="NomePainel" class="field-label"></label>
+            <input asp-for="NomePainel" class="input-pill" placeholder="Nome do painel" />
+            <span asp-validation-for="NomePainel" class="text-danger"></span>
+            <div class="field-note">Esse é o nome que aparece no topo do sistema, ao lado da coroa.</div>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn-pill">Salvar alterações</button>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <script>
+        document.getElementById('foto').addEventListener('change', function (e) {
+            var arquivo = e.target.files[0];
+            if (!arquivo) return;
+            var preview = document.getElementById('avatarPreview');
+            var reader = new FileReader();
+            reader.onload = function (ev) {
+                if (preview.tagName === 'IMG') {
+                    preview.src = ev.target.result;
+                } else {
+                    var img = document.createElement('img');
+                    img.id = 'avatarPreview';
+                    img.src = ev.target.result;
+                    preview.replaceWith(img);
+                }
+            };
+            reader.readAsDataURL(arquivo);
+        });
+    </script>
+}

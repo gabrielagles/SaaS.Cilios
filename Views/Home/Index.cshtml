@@ -1,0 +1,83 @@
+@inject SaaS.Cilios.Data.AppDbContext Db
+@{
+    ViewData["Title"] = "Início";
+    var agendamentosHoje = (List<Agendamento>)ViewBag.AgendamentosHoje;
+    var hoje = DateTime.Now;
+    var diasSemana = new[] { "Domingo", "Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado" };
+    var config = Db.ConfiguracoesConta.FirstOrDefault();
+    var nomeExibicao = config?.NomeExibicao ?? "Rafa";
+    var inicial = string.IsNullOrEmpty(nomeExibicao) ? "R" : nomeExibicao.Substring(0, 1).ToUpper();
+}
+
+<div class="home-header">
+    <div>
+        <p class="home-eyebrow">@diasSemana[(int)hoje.DayOfWeek], @hoje.ToString("dd 'de' MMMM")</p>
+        <h1 class="home-greeting">Olá, @nomeExibicao</h1>
+    </div>
+    <a class="avatar-wrap" asp-controller="Conta" asp-action="Index" title="Editar conta">
+        @if (!string.IsNullOrEmpty(config?.FotoCaminho))
+        {
+            <img src="@config.FotoCaminho?v=@config.FotoVersao" alt=""
+                 class="avatar-circle avatar-photo"
+                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+            <div class="avatar-circle" style="display:none;">@inicial</div>
+        }
+        else
+        {
+            <div class="avatar-circle">@inicial</div>
+        }
+    </a>
+</div>
+
+<a asp-controller="Agendamento" asp-action="Create" class="home-primary-action">
+    <span class="icon-circle">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14" stroke-linecap="round"/></svg>
+    </span>
+    <span class="texts">
+        <strong>Novo Agendamento</strong>
+        <span>Marcar o próximo horário</span>
+    </span>
+</a>
+
+<div class="home-quick-row">
+    <a asp-controller="Agendamento" asp-action="Calendario" class="home-chip">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 9h18M8 3v4M16 3v4" stroke-linecap="round"/></svg>
+        Ver Agenda
+    </a>
+    <a asp-controller="Servico" asp-action="Create" class="home-chip">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3l1.8 5.6H20l-4.8 3.5 1.8 5.6L12 14.2l-4.8 3.5 1.8-5.6L4.2 8.6h6.2z" stroke-linejoin="round"/></svg>
+        Novo Serviço
+    </a>
+    <a asp-controller="Agendamento" asp-action="Relatorio" class="home-chip">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 19V10M12 19V5M19 19v-7" stroke-linecap="round"/></svg>
+        Balanço do Mês
+    </a>
+</div>
+
+<div class="section-label">Agendamentos de hoje</div>
+
+@if (!agendamentosHoje.Any())
+{
+    <div class="home-empty-warm">
+        <span class="script">Dia livre</span>
+        <p>Nada marcado por aqui ainda hoje.</p>
+    </div>
+}
+else
+{
+    @foreach (var ag in agendamentosHoje)
+    {
+        <div class="appt-card" style="border-left-color:@(ag.Servico?.Cor ?? "#CC8AA0"); cursor:default;">
+            <div class="appt-summary">
+                <div>
+                    <div class="appt-hora">@ag.DataHora.ToString("HH'h'mm")</div>
+                    <div class="appt-cliente">@ag.ClienteNome</div>
+                </div>
+                <div>
+                    <div class="appt-servico">@ag.Servico?.Nome</div>
+                    <div class="appt-valor">R$ @ag.Valor.ToString("N2")</div>
+                </div>
+            </div>
+        </div>
+    }
+}
