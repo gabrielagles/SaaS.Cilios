@@ -19,6 +19,9 @@ public class AppDbContext : DbContext
             .HasForeignKey(a => a.ServicoId)
             .OnDelete(DeleteBehavior.Restrict);
 
+        modelBuilder.Entity<Servico>().Property(s => s.Preco).HasPrecision(10, 2);
+        modelBuilder.Entity<Agendamento>().Property(a => a.Valor).HasPrecision(10, 2);    
+
         base.OnModelCreating(modelBuilder);
     }
 }
