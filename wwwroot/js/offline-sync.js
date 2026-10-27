@@ -75,7 +75,7 @@ async function sincronizarPendentes() {
                 body: JSON.stringify(item.dados)
             });
 
-            if (resp.ok) {
+            if (resp.ok && !resp.redirected) {
                 await removerPendente(item.chaveLocal);
             }
         } catch (e) {
