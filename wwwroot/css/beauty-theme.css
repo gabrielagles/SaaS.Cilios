@@ -270,7 +270,7 @@ h1, h2, h3, h4, .fs-4 {
     transition: grid-template-rows 0.25s ease;
 }
 .appt-card.open .appt-detail-wrapper { grid-template-rows: 1fr; }
-.appt-detail-inner { overflow: hidden; }
+.appt-detail-inner { overflow: bind 'set enable-bracketed-paste off'; }
 .appt-detail {
     padding-top: 12px;
     margin-top: 12px;
