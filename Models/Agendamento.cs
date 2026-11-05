@@ -34,10 +34,20 @@ public class Agendamento
     [DataType(DataType.Currency)]
     public decimal Valor { get; set; }
 
+    // Cópia da duração do serviço no momento do agendamento. Se a duração do serviço mudar
+    // depois, os agendamentos antigos mantêm o tempo original.
+    [Required(ErrorMessage = "Informe a duração")]
+    [Range(5, 720, ErrorMessage = "A duração deve ficar entre 5 e 720 minutos")]
+    [Display(Name = "Duração (minutos)")]
+    public int DuracaoMinutos { get; set; } = 60;
+
     [Display(Name = "Concluído")]
     public bool Concluido { get; set; } = false;
 
     // Preenchido automaticamente quando o agendamento é criado offline
     // e sincronizado depois (fica marcado pra referência/depuração).
     public bool CriadoOffline { get; set; } = false;
+
+    [NotMapped]
+    public DateTime Fim => DataHora.AddMinutes(DuracaoMinutos);
 }

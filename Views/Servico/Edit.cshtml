@@ -26,6 +26,17 @@
             <span asp-validation-for="Preco" class="text-danger"></span>
         </div>
 
+        <div class="field-group">
+            <label asp-for="DuracaoMinutos" class="field-label"></label>
+            <div class="chip-row">
+                <button type="button" class="chip" data-min="30">Rápido · 30 min</button>
+                <button type="button" class="chip" data-min="60">Médio · 1h</button>
+                <button type="button" class="chip" data-min="120">Demorado · 2h</button>
+            </div>
+            <input asp-for="DuracaoMinutos" id="DuracaoMinutos" type="number" min="5" max="600" step="5" inputmode="numeric" class="input-pill" />
+            <span asp-validation-for="DuracaoMinutos" class="text-danger"></span>
+        </div>
+
         <label class="toggle-row">
             <input asp-for="Ativo" class="toggle-input" />
             <span class="toggle-track"><span class="toggle-thumb"></span></span>
@@ -41,8 +52,15 @@
 
 @section Scripts {
     <script>
+        // ---- preço (máscara de dinheiro) ----
         var visivel = document.getElementById('PrecoVisivel');
         var oculto = document.getElementById('Preco');
+
+        function paraNumero(txt) {
+            var s = String(txt || '0').trim();
+            if (s.indexOf(',') > -1) { s = s.replace(/\./g, '').replace(',', '.'); }
+            return parseFloat(s) || 0;
+        }
         function formatar(centavos) {
             return (centavos / 100).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
         }
@@ -53,8 +71,25 @@
             visivel.value = formatar(centavos);
             oculto.value = (centavos / 100).toFixed(2).replace('.', ',');
         }
-        var centavosIniciais = Math.round(parseFloat(oculto.value || '0') * 100);
-        visivel.value = formatar(centavosIniciais);
+        visivel.value = formatar(Math.round(paraNumero(oculto.value) * 100));
         visivel.addEventListener('input', atualizar);
+
+        // ---- duração (atalhos rápido / médio / demorado) ----
+        var duracao = document.getElementById('DuracaoMinutos');
+        var chips = document.querySelectorAll('.chip');
+        function marcarChip() {
+            var atual = String(parseInt(duracao.value, 10));
+            chips.forEach(function (c) {
+                c.classList.toggle('active', c.getAttribute('data-min') === atual);
+            });
+        }
+        chips.forEach(function (c) {
+            c.addEventListener('click', function () {
+                duracao.value = c.getAttribute('data-min');
+                marcarChip();
+            });
+        });
+        duracao.addEventListener('input', marcarChip);
+        marcarChip();
     </script>
 }

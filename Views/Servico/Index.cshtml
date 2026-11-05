@@ -18,7 +18,7 @@ else
     <div class="table-card">
         <table class="table">
             <thead>
-                <tr><th>Cor</th><th>Nome</th><th>Preço</th><th>Status</th><th></th></tr>
+                <tr><th>Cor</th><th>Nome</th><th>Preço</th><th>Duração</th><th>Status</th><th></th></tr>
             </thead>
             <tbody>
                 @foreach (var s in Model)
@@ -27,6 +27,7 @@ else
                         <td><span class="d-inline-block rounded-circle" style="width:20px;height:20px;background-color:@s.Cor;"></span></td>
                         <td>@s.Nome</td>
                         <td>R$ @s.Preco.ToString("N2")</td>
+                        <td>@s.DuracaoTexto</td>
                         <td>@(s.Ativo ? "Ativo" : "Inativo")</td>
                         <td>
                             <a asp-action="Edit" asp-route-id="@s.Id" class="icon-btn" title="Editar">

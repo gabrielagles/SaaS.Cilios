@@ -27,6 +27,7 @@ public class AgendamentoApiController : ControllerBase
         public string? ClienteTelefone { get; set; }
         public int ServicoId { get; set; }
         public DateTime DataHora { get; set; }
+        public int DuracaoMinutos { get; set; }
         public decimal Valor { get; set; }
         public bool Concluido { get; set; }
     }
@@ -39,11 +40,15 @@ public class AgendamentoApiController : ControllerBase
             return BadRequest(new { erro = "Dados incompletos." });
         }
 
-        var servicoExiste = await _context.Servicos.AnyAsync(s => s.Id == input.ServicoId);
-        if (!servicoExiste)
+        var servico = await _context.Servicos.FirstOrDefaultAsync(s => s.Id == input.ServicoId);
+        if (servico == null)
         {
             return BadRequest(new { erro = "Serviço não encontrado." });
         }
+
+        // Se o celular não mandou a duração (fila antiga), usa a do serviço.
+        var duracao = input.DuracaoMinutos > 0 ? input.DuracaoMinutos : servico.DuracaoMinutos;
+        duracao = Math.Clamp(duracao, 5, 720);
 
         var agendamento = new Agendamento
         {
@@ -51,6 +56,7 @@ public class AgendamentoApiController : ControllerBase
             ClienteTelefone = input.ClienteTelefone,
             ServicoId = input.ServicoId,
             DataHora = input.DataHora,
+            DuracaoMinutos = duracao,
             Valor = input.Valor,
             Concluido = input.Concluido,
             CriadoOffline = true
@@ -68,7 +74,7 @@ public class AgendamentoApiController : ControllerBase
         var servicos = await _context.Servicos
             .Where(s => s.Ativo)
             .OrderBy(s => s.Nome)
-            .Select(s => new { s.Id, s.Nome, s.Preco, s.Cor })
+            .Select(s => new { s.Id, s.Nome, s.Preco, s.Cor, s.DuracaoMinutos })
             .ToListAsync();
 
         return Ok(servicos);

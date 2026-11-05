@@ -48,6 +48,9 @@ namespace SaaS.Cilios.Migrations
                     b.Property<DateTime>("DataHora")
                         .HasColumnType("datetime(6)");
 
+                    b.Property<int>("DuracaoMinutos")
+                        .HasColumnType("int");
+
                     b.Property<int>("ServicoId")
                         .HasColumnType("int");
 
@@ -105,6 +108,9 @@ namespace SaaS.Cilios.Migrations
                     b.Property<string>("Cor")
                         .IsRequired()
                         .HasColumnType("longtext");
+
+                    b.Property<int>("DuracaoMinutos")
+                        .HasColumnType("int");
 
                     b.Property<string>("Nome")
                         .IsRequired()
