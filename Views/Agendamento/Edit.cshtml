@@ -2,6 +2,7 @@
 @{
     ViewData["Title"] = "Editar Agendamento";
     var servicos = (List<Servico>)ViewBag.Servicos;
+    var conflitos = ViewBag.Conflitos as List<Agendamento>;
 }
 
 <div class="form-card">
@@ -13,13 +14,13 @@
 
         <div class="field-group">
             <label asp-for="ClienteNome" class="field-label"></label>
-            <input asp-for="ClienteNome" class="input-pill" />
+            <input asp-for="ClienteNome" class="input-pill" placeholder="Nome da cliente" />
             <span asp-validation-for="ClienteNome" class="text-danger"></span>
         </div>
 
         <div class="field-group">
             <label asp-for="ClienteTelefone" class="field-label"></label>
-            <input asp-for="ClienteTelefone" class="input-pill" />
+            <input asp-for="ClienteTelefone" class="input-pill" placeholder="(00) 00000-0000" />
         </div>
 
         <div class="field-group">
@@ -27,7 +28,7 @@
             <select asp-for="ServicoId" id="ServicoId" class="input-pill select-pill">
                 @foreach (var s in servicos)
                 {
-                    <option value="@s.Id" data-preco="@s.Preco.ToString(System.Globalization.CultureInfo.InvariantCulture)">@s.Nome (R$ @s.Preco.ToString("N2"))</option>
+                    <option value="@s.Id" data-preco="@s.Preco.ToString(System.Globalization.CultureInfo.InvariantCulture)" data-duracao="@s.DuracaoMinutos">@s.Nome (R$ @s.Preco.ToString("N2"))</option>
                 }
             </select>
             <span asp-validation-for="ServicoId" class="text-danger"></span>
@@ -46,6 +47,18 @@
         <input type="hidden" name="DataHora" id="DataHora" value="@Model.DataHora.ToString("yyyy-MM-ddTHH:mm")" />
         <span asp-validation-for="DataHora" class="text-danger"></span>
 
+        <div class="field-row">
+            <div class="field-group">
+                <label asp-for="DuracaoMinutos" class="field-label"></label>
+                <input asp-for="DuracaoMinutos" id="DuracaoMinutos" type="number" min="5" max="720" step="5" inputmode="numeric" class="input-pill" />
+                <span asp-validation-for="DuracaoMinutos" class="text-danger"></span>
+            </div>
+            <div class="field-group">
+                <label class="field-label">Termina às</label>
+                <input type="text" id="FimTexto" class="input-pill" readonly tabindex="-1" />
+            </div>
+        </div>
+
         <div class="field-group">
             <label asp-for="Valor" class="field-label"></label>
             <input type="text" inputmode="numeric" id="ValorVisivel" class="input-pill" placeholder="0,00" autocomplete="off" />
@@ -59,6 +72,24 @@
             Já foi concluído
         </label>
 
+        @if (conflitos != null && conflitos.Any())
+        {
+            <div class="conflict-box">
+                <strong>Esse horário já está ocupado:</strong>
+                <ul>
+                    @foreach (var c in conflitos)
+                    {
+                        <li>@c.DataHora.ToString("dd/MM HH'h'mm") – @c.Fim.ToString("HH'h'mm") · @c.ClienteNome (@c.Servico?.Nome)</li>
+                    }
+                </ul>
+                <label class="toggle-row">
+                    <input type="checkbox" name="encaixar" value="true" class="toggle-input" />
+                    <span class="toggle-track"><span class="toggle-thumb"></span></span>
+                    Encaixar mesmo assim
+                </label>
+            </div>
+        }
+
         <div class="form-actions">
             <button type="submit" class="btn-pill">Salvar alterações</button>
             <a asp-action="Index" class="btn-pill-ghost">Cancelar</a>
@@ -68,9 +99,15 @@
 
 @section Scripts {
     <script>
+        // ---- valor (máscara de dinheiro) ----
         var valorVisivel = document.getElementById('ValorVisivel');
         var valorOculto = document.getElementById('Valor');
 
+        function paraNumero(txt) {
+            var s = String(txt || '0').trim();
+            if (s.indexOf(',') > -1) { s = s.replace(/\./g, '').replace(',', '.'); }
+            return parseFloat(s) || 0;
+        }
         function formatarMoeda(centavos) {
             return (centavos / 100).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
         }
@@ -82,34 +119,55 @@
             valorOculto.value = (centavos / 100).toFixed(2).replace('.', ',');
         }
         function definirValor(reais) {
-            var centavos = Math.round(parseFloat(reais || '0') * 100);
+            var centavos = Math.round(paraNumero(reais) * 100);
             valorVisivel.value = formatarMoeda(centavos);
             valorOculto.value = (centavos / 100).toFixed(2).replace('.', ',');
         }
         definirValor(valorOculto.value);
         valorVisivel.addEventListener('input', atualizarValorVisivel);
 
-        document.getElementById('ServicoId').addEventListener('change', function () {
-            var selected = this.options[this.selectedIndex];
-            var preco = selected.getAttribute('data-preco');
-            if (preco) { definirValor(preco); }
-        });
+        // ---- data e hora separados ----
+        var hidden = document.getElementById('DataHora');
+        var dataVisivel = document.getElementById('DataVisivel');
+        var horaVisivel = document.getElementById('HoraVisivel');
+        var duracao = document.getElementById('DuracaoMinutos');
+        var fimTexto = document.getElementById('FimTexto');
 
-        (function () {
-            var hidden = document.getElementById('DataHora');
-            var dataVisivel = document.getElementById('DataVisivel');
-            var horaVisivel = document.getElementById('HoraVisivel');
-            var partes = hidden.value.split('T');
-            dataVisivel.value = partes[0] || '';
-            horaVisivel.value = partes[1] ? partes[1].substring(0, 5) : '';
-            function atualizarHidden() {
-                if (dataVisivel.value && horaVisivel.value) {
-                    hidden.value = dataVisivel.value + 'T' + horaVisivel.value;
-                }
+        var partes = hidden.value.split('T');
+        dataVisivel.value = partes[0] || '';
+        horaVisivel.value = partes[1] ? partes[1].substring(0, 5) : '';
+
+        function atualizarHidden() {
+            if (dataVisivel.value && horaVisivel.value) {
+                hidden.value = dataVisivel.value + 'T' + horaVisivel.value;
             }
-            dataVisivel.addEventListener('change', atualizarHidden);
-            horaVisivel.addEventListener('change', atualizarHidden);
-            dataVisivel.closest('form').addEventListener('submit', atualizarHidden);
-        })();
+        }
+
+        // ---- horário de término ----
+        function atualizarFim() {
+            var dur = parseInt(duracao.value, 10);
+            if (!dataVisivel.value || !horaVisivel.value || !dur) { fimTexto.value = ''; return; }
+            var d = dataVisivel.value.split('-');
+            var h = horaVisivel.value.split(':');
+            var ini = new Date(+d[0], +d[1] - 1, +d[2], +h[0], +h[1]);
+            var fim = new Date(ini.getTime() + dur * 60000);
+            var txt = String(fim.getHours()).padStart(2, '0') + ':' + String(fim.getMinutes()).padStart(2, '0');
+            fimTexto.value = (fim.toDateString() !== ini.toDateString()) ? txt + ' (dia seguinte)' : txt;
+        }
+
+        dataVisivel.addEventListener('change', function () { atualizarHidden(); atualizarFim(); });
+        horaVisivel.addEventListener('change', function () { atualizarHidden(); atualizarFim(); });
+        duracao.addEventListener('input', atualizarFim);
+        dataVisivel.closest('form').addEventListener('submit', atualizarHidden);
+        atualizarFim();
+
+        // ---- ao trocar o serviço, preenche valor e duração ----
+        document.getElementById('ServicoId').addEventListener('change', function () {
+            var opt = this.options[this.selectedIndex];
+            var preco = opt.getAttribute('data-preco');
+            var dur = opt.getAttribute('data-duracao');
+            if (preco) { definirValor(preco); }
+            if (dur) { duracao.value = dur; atualizarFim(); }
+        });
     </script>
 }

@@ -806,3 +806,34 @@ h1, h2, h3, h4, .fs-4 {
 .confirm-card h1 { font-size: 1.25rem; margin-bottom: 10px; }
 .confirm-card p { color: var(--ink-soft); font-size: 0.9rem; margin-bottom: 4px; }
 .confirm-card .confirm-detail { color: var(--ink); font-weight: 600; margin-bottom: 24px; }
+
+/* ---------- Duração: atalhos, campo somente leitura e aviso de conflito ---------- */
+.chip-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+.chip {
+    border: 1px solid var(--rose-200);
+    background: #fff;
+    color: var(--rose-600);
+    border-radius: 999px;
+    padding: 7px 14px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+}
+.chip:hover { background: var(--rose-50); }
+.chip.active { background: var(--rose-500); border-color: var(--rose-500); color: #fff; }
+
+.input-pill[readonly] { color: var(--ink-soft); cursor: default; }
+
+.conflict-box {
+    background: #FFF6E5;
+    border-left: 4px solid var(--gold);
+    border-radius: 14px;
+    padding: 14px 16px;
+    margin-bottom: 20px;
+    font-size: 0.86rem;
+    color: var(--ink);
+}
+.conflict-box ul { margin: 8px 0 12px; padding-left: 18px; }
+.conflict-box .toggle-row { margin: 0; }

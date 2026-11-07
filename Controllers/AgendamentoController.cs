@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SaaS.Cilios.Data;
 using SaaS.Cilios.Models;
+using SaaS.Cilios.Services;
 
 namespace SaaS.Cilios.Controllers;
 
@@ -36,9 +37,22 @@ public class AgendamentoController : Controller
     // POST: /Agendamento/Create
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create(Agendamento agendamento)
+    public async Task<IActionResult> Create(Agendamento agendamento, bool encaixar = false)
     {
         ModelState.Remove(nameof(Agendamento.Servico));
+
+        // Antes de gravar, confere se o horário já está ocupado. A Rafaela pode "encaixar"
+        // mesmo assim marcando a opção que aparece junto do aviso.
+        if (ModelState.IsValid && !encaixar)
+        {
+            var conflitos = await AgendaRegras.ConflitosAsync(_context, agendamento.DataHora, agendamento.DuracaoMinutos);
+            if (conflitos.Any())
+            {
+                ViewBag.Conflitos = conflitos;
+                await CarregarServicosAsync();
+                return View(agendamento);
+            }
+        }
 
         if (ModelState.IsValid)
         {
@@ -65,11 +79,22 @@ public class AgendamentoController : Controller
     // POST: /Agendamento/Edit/5
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int id, Agendamento agendamento)
+    public async Task<IActionResult> Edit(int id, Agendamento agendamento, bool encaixar = false)
     {
         if (id != agendamento.Id) return NotFound();
 
         ModelState.Remove(nameof(Agendamento.Servico));
+
+        if (ModelState.IsValid && !encaixar)
+        {
+            var conflitos = await AgendaRegras.ConflitosAsync(_context, agendamento.DataHora, agendamento.DuracaoMinutos, agendamento.Id);
+            if (conflitos.Any())
+            {
+                ViewBag.Conflitos = conflitos;
+                await CarregarServicosAsync();
+                return View(agendamento);
+            }
+        }
 
         if (ModelState.IsValid)
         {

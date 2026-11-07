@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SaaS.Cilios.Models;
 
@@ -21,6 +22,16 @@ public class Servico
     [DataType(DataType.Currency)]
     public decimal Preco { get; set; }
 
+    // Quanto tempo o procedimento ocupa na agenda. Cada agendamento guarda uma cópia
+    // desse valor no momento em que é criado (igual ao Valor).
+    [Required(ErrorMessage = "Informe a duração")]
+    [Range(5, 600, ErrorMessage = "A duração deve ficar entre 5 e 600 minutos")]
+    [Display(Name = "Duração (minutos)")]
+    public int DuracaoMinutos { get; set; } = 60;
+
     [Display(Name = "Ativo")]
     public bool Ativo { get; set; } = true;
+
+    [NotMapped]
+    public string DuracaoTexto => DuracaoHelper.Texto(DuracaoMinutos);
 }

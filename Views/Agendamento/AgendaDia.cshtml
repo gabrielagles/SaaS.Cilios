@@ -42,7 +42,7 @@ else
         <div class="appt-card" style="border-left-color:@(ag.Servico?.Cor ?? "#CC8AA0")" onclick="this.classList.toggle('open')">
             <div class="appt-summary">
                 <div>
-                    <div class="appt-hora">@ag.DataHora.ToString("HH'h'mm")</div>
+                    <div class="appt-hora">@ag.DataHora.ToString("HH'h'mm") – @ag.Fim.ToString("HH'h'mm")</div>
                     <div class="appt-cliente">@ag.ClienteNome</div>
                 </div>
                 <div>
@@ -53,6 +53,7 @@ else
             <div class="appt-detail-wrapper">
                 <div class="appt-detail-inner">
                     <div class="appt-detail">
+                        <span>Duração: @DuracaoHelper.Texto(ag.DuracaoMinutos)</span>
                         <span>Telefone: @(string.IsNullOrWhiteSpace(ag.ClienteTelefone) ? "não informado" : ag.ClienteTelefone)</span>
                         <span>Status: @(ag.Concluido ? "Concluído" : "Pendente")</span>
                         <div style="display:flex; gap:16px; margin-top:4px;">

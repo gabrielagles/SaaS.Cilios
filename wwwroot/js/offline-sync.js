@@ -120,6 +120,7 @@ function interceptarFormularioAgendamento() {
             clienteTelefone: form.querySelector("[name='ClienteTelefone']").value,
             servicoId: parseInt(form.querySelector("[name='ServicoId']").value, 10),
             dataHora: form.querySelector("[name='DataHora']").value,
+            duracaoMinutos: parseInt(form.querySelector("[name='DuracaoMinutos']")?.value, 10) || 0,
             valor: parseFloat(form.querySelector("[name='Valor']").value.replace(",", ".")) || 0,
             concluido: form.querySelector("[name='Concluido']")?.checked || false
         };
