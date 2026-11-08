@@ -22,7 +22,7 @@ public class HomeController : Controller
         var hoje = DateTime.Now.Date;
         ViewBag.AgendamentosHoje = await _context.Agendamentos
             .Include(a => a.Servico)
-            .Where(a => a.DataHora.Date == hoje)
+            .Where(a => a.Status != StatusAgendamento.Cancelado && a.DataHora.Date == hoje)
             .OrderBy(a => a.DataHora)
             .ToListAsync();
 

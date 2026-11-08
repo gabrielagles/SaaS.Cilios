@@ -44,6 +44,13 @@ public class Agendamento
     [Display(Name = "Concluído")]
     public bool Concluido { get; set; } = false;
 
+    // Cancelado libera o horário, mas o registro continua no histórico.
+    public StatusAgendamento Status { get; set; } = StatusAgendamento.Confirmado;
+
+    public OrigemAgendamento Origem { get; set; } = OrigemAgendamento.Admin;
+
+    public DateTime? CanceladoEm { get; set; }
+
     // Preenchido automaticamente quando o agendamento é criado offline
     // e sincronizado depois (fica marcado pra referência/depuração).
     public bool CriadoOffline { get; set; } = false;

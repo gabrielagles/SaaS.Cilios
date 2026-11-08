@@ -30,6 +30,9 @@ namespace SaaS.Cilios.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<DateTime?>("CanceladoEm")
+                        .HasColumnType("datetime(6)");
+
                     b.Property<string>("ClienteNome")
                         .IsRequired()
                         .HasMaxLength(150)
@@ -51,7 +54,13 @@ namespace SaaS.Cilios.Migrations
                     b.Property<int>("DuracaoMinutos")
                         .HasColumnType("int");
 
+                    b.Property<int>("Origem")
+                        .HasColumnType("int");
+
                     b.Property<int>("ServicoId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Status")
                         .HasColumnType("int");
 
                     b.Property<decimal>("Valor")
@@ -63,6 +72,67 @@ namespace SaaS.Cilios.Migrations
                     b.HasIndex("ServicoId");
 
                     b.ToTable("Agendamentos");
+                });
+
+            modelBuilder.Entity("SaaS.Cilios.Models.BloqueioAgenda", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("Fim")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<DateTime>("Inicio")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Motivo")
+                        .HasMaxLength(120)
+                        .HasColumnType("varchar(120)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Bloqueios");
+                });
+
+            modelBuilder.Entity("SaaS.Cilios.Models.ConfiguracaoAgenda", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AntecedenciaHoras")
+                        .HasColumnType("int");
+
+                    b.Property<int>("DiasAFrente")
+                        .HasColumnType("int");
+
+                    b.Property<int>("IntervaloMin")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PassoMin")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PresetDemoradoMin")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PresetMedioMin")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PresetRapidoMin")
+                        .HasColumnType("int");
+
+                    b.Property<string>("WhatsApp")
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ConfiguracoesAgenda");
                 });
 
             modelBuilder.Entity("SaaS.Cilios.Models.ConfiguracaoConta", b =>
@@ -92,6 +162,28 @@ namespace SaaS.Cilios.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("ConfiguracoesConta");
+                });
+
+            modelBuilder.Entity("SaaS.Cilios.Models.HorarioFuncionamento", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("DiaSemana")
+                        .HasColumnType("int");
+
+                    b.Property<TimeSpan>("Fim")
+                        .HasColumnType("time(6)");
+
+                    b.Property<TimeSpan>("Inicio")
+                        .HasColumnType("time(6)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("HorariosFuncionamento");
                 });
 
             modelBuilder.Entity("SaaS.Cilios.Models.Servico", b =>

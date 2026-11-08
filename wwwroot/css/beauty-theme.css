@@ -837,3 +837,84 @@ h1, h2, h3, h4, .fs-4 {
 }
 .conflict-box ul { margin: 8px 0 12px; padding-left: 18px; }
 .conflict-box .toggle-row { margin: 0; }
+
+/* ---------- Cancelamento ---------- */
+.link-btn {
+    background: none;
+    border: none;
+    padding: 0;
+    color: var(--rose-600);
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    text-decoration: none;
+}
+.link-btn:hover { text-decoration: underline; color: var(--rose-700); }
+
+.appt-card.cancelled { opacity: 0.8; }
+.appt-card.cancelled .appt-hora,
+.appt-card.cancelled .appt-cliente { text-decoration: line-through; color: var(--ink-soft); }
+.cancel-actions {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid var(--rose-100);
+}
+.cancel-actions form { margin: 0; }
+
+.row-cancelled td { color: var(--ink-soft); text-decoration: line-through; }
+.row-cancelled td:last-child { text-decoration: none; }
+.filter-link { margin: -8px 0 16px; font-size: 0.85rem; }
+.filter-link a { color: var(--rose-600); text-decoration: none; font-weight: 500; }
+.filter-link a:hover { text-decoration: underline; }
+button.icon-btn { border: none; cursor: pointer; padding: 0; }
+
+/* ---------- Tela de Horários ---------- */
+.form-card-wide { max-width: 680px; margin: 0 auto 20px; }
+.card-title { font-size: 1.15rem; margin-bottom: 14px; }
+.field-row-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.field-row-3 .input-pill { min-width: 0; }
+@media (max-width: 520px) { .field-row-3 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+.week-row { padding: 12px 0; border-top: 1px solid var(--rose-50); }
+.week-list .week-row:first-child { border-top: none; }
+.week-day { margin: 0 0 8px; font-weight: 600; color: var(--rose-700); }
+.week-periods {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    color: var(--ink-soft);
+    font-size: 0.85rem;
+}
+.week-periods .time-pill {
+    width: 100px;
+    min-width: 0;
+    margin: 0;
+    padding: 9px 8px;
+    min-height: 42px;
+    text-align: center;
+    -webkit-appearance: none;
+    appearance: none;
+}
+.week-row.off .week-periods { opacity: 0.35; pointer-events: none; }
+@media (min-width: 640px) {
+    .week-row { display: grid; grid-template-columns: 190px 1fr; align-items: center; }
+    .week-day { margin: 0; }
+}
+
+.block-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 0;
+    border-top: 1px solid var(--rose-50);
+    font-size: 0.88rem;
+}
+.block-item span { display: block; color: var(--ink-soft); font-size: 0.8rem; }
+.block-item form { margin: 0; }

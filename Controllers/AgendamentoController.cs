@@ -18,12 +18,16 @@ public class AgendamentoController : Controller
     }
 
     // GET: /Agendamento
-    public async Task<IActionResult> Index()
+    public async Task<IActionResult> Index(bool cancelados = false)
     {
-        var agendamentos = await _context.Agendamentos
-            .Include(a => a.Servico)
-            .OrderBy(a => a.DataHora)
-            .ToListAsync();
+        var consulta = _context.Agendamentos.Include(a => a.Servico).AsQueryable();
+        if (!cancelados)
+        {
+            consulta = consulta.Where(a => a.Status != StatusAgendamento.Cancelado);
+        }
+
+        var agendamentos = await consulta.OrderBy(a => a.DataHora).ToListAsync();
+        ViewBag.MostrarCancelados = cancelados;
         return View(agendamentos);
     }
 
@@ -40,6 +44,10 @@ public class AgendamentoController : Controller
     public async Task<IActionResult> Create(Agendamento agendamento, bool encaixar = false)
     {
         ModelState.Remove(nameof(Agendamento.Servico));
+
+        agendamento.Status = StatusAgendamento.Confirmado;
+        agendamento.Origem = OrigemAgendamento.Admin;
+        agendamento.CanceladoEm = null;
 
         // Antes de gravar, confere se o horário já está ocupado. A Rafaela pode "encaixar"
         // mesmo assim marcando a opção que aparece junto do aviso.
@@ -98,7 +106,18 @@ public class AgendamentoController : Controller
 
         if (ModelState.IsValid)
         {
-            _context.Update(agendamento);
+            var existente = await _context.Agendamentos.FindAsync(id);
+            if (existente == null) return NotFound();
+
+            // Só copia o que o formulário edita. Status, origem e "criado offline" ficam como estavam.
+            existente.ClienteNome = agendamento.ClienteNome;
+            existente.ClienteTelefone = agendamento.ClienteTelefone;
+            existente.ServicoId = agendamento.ServicoId;
+            existente.DataHora = agendamento.DataHora;
+            existente.DuracaoMinutos = agendamento.DuracaoMinutos;
+            existente.Valor = agendamento.Valor;
+            existente.Concluido = agendamento.Concluido;
+
             await _context.SaveChangesAsync();
             TempData["Sucesso"] = "Agendamento atualizado com sucesso!";
             return RedirectToAction(nameof(Index));
@@ -142,7 +161,8 @@ public class AgendamentoController : Controller
 
         var agendamentosDoMes = await _context.Agendamentos
             .Include(a => a.Servico)
-            .Where(a => a.DataHora.Month == mesSelecionado && a.DataHora.Year == anoSelecionado)
+            .Where(a => a.Status != StatusAgendamento.Cancelado
+                        && a.DataHora.Month == mesSelecionado && a.DataHora.Year == anoSelecionado)
             .OrderBy(a => a.DataHora)
             .ToListAsync();
 
@@ -177,7 +197,8 @@ public class AgendamentoController : Controller
 
         var agendamentosDoPeriodo = await _context.Agendamentos
             .Include(a => a.Servico)
-            .Where(a => a.DataHora.Date >= inicioGrade && a.DataHora.Date <= fimGrade)
+            .Where(a => a.Status != StatusAgendamento.Cancelado
+                        && a.DataHora.Date >= inicioGrade && a.DataHora.Date <= fimGrade)
             .OrderBy(a => a.DataHora)
             .ToListAsync();
 
@@ -227,11 +248,15 @@ public class AgendamentoController : Controller
             .ToListAsync();
 
         var agendamentosDoDia = agendamentosDoMes
-            .Where(a => a.DataHora.Date == diaSelecionado)
+            .Where(a => a.Status != StatusAgendamento.Cancelado && a.DataHora.Date == diaSelecionado)
+            .ToList();
+
+        var canceladosDoDia = agendamentosDoMes
+            .Where(a => a.Status == StatusAgendamento.Cancelado && a.DataHora.Date == diaSelecionado)
             .ToList();
 
         var outrosDias = agendamentosDoMes
-            .Where(a => a.DataHora.Date != diaSelecionado)
+            .Where(a => a.Status != StatusAgendamento.Cancelado && a.DataHora.Date != diaSelecionado)
             .GroupBy(a => a.DataHora.Date)
             .OrderBy(g => g.Key)
             .Select(g => new AgendaDoDia { Data = g.Key, Agendamentos = g.OrderBy(a => a.DataHora).ToList() })
@@ -241,10 +266,68 @@ public class AgendamentoController : Controller
         {
             DiaSelecionado = diaSelecionado,
             AgendamentosDoDia = agendamentosDoDia,
+            CanceladosDoDia = canceladosDoDia,
             OutrosDias = outrosDias
         };
 
         return View(vm);
+    }
+
+    // POST: /Agendamento/Cancelar/5  (o horário fica livre, mas o registro continua no histórico)
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Cancelar(int id, string? retorno)
+    {
+        var agendamento = await _context.Agendamentos.FindAsync(id);
+        if (agendamento == null) return NotFound();
+
+        if (agendamento.Status != StatusAgendamento.Cancelado)
+        {
+            agendamento.Status = StatusAgendamento.Cancelado;
+            agendamento.CanceladoEm = DateTime.Now;
+            await _context.SaveChangesAsync();
+            TempData["Sucesso"] = "Agendamento cancelado. O horário ficou livre.";
+        }
+
+        return VoltarPara(retorno, agendamento.DataHora);
+    }
+
+    // POST: /Agendamento/Reativar/5
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Reativar(int id, string? retorno)
+    {
+        var agendamento = await _context.Agendamentos.FindAsync(id);
+        if (agendamento == null) return NotFound();
+
+        if (agendamento.Status == StatusAgendamento.Cancelado)
+        {
+            var conflitos = await AgendaRegras.ConflitosAsync(
+                _context, agendamento.DataHora, agendamento.DuracaoMinutos, agendamento.Id);
+
+            if (conflitos.Any())
+            {
+                TempData["Erro"] = "Não deu pra reativar: esse horário já foi ocupado por outro agendamento.";
+            }
+            else
+            {
+                agendamento.Status = StatusAgendamento.Confirmado;
+                agendamento.CanceladoEm = null;
+                await _context.SaveChangesAsync();
+                TempData["Sucesso"] = "Agendamento reativado.";
+            }
+        }
+
+        return VoltarPara(retorno, agendamento.DataHora);
+    }
+
+    private IActionResult VoltarPara(string? retorno, DateTime data)
+    {
+        if (retorno == "dia")
+        {
+            return RedirectToAction(nameof(AgendaDia), new { data = data.ToString("yyyy-MM-dd") });
+        }
+        return RedirectToAction(nameof(Index));
     }
 
     private async Task CarregarServicosAsync()

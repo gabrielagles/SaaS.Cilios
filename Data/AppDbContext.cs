@@ -10,6 +10,9 @@ public class AppDbContext : DbContext
     public DbSet<Servico> Servicos => Set<Servico>();
     public DbSet<Agendamento> Agendamentos => Set<Agendamento>();
     public DbSet<ConfiguracaoConta> ConfiguracoesConta => Set<ConfiguracaoConta>();
+    public DbSet<ConfiguracaoAgenda> ConfiguracoesAgenda => Set<ConfiguracaoAgenda>();
+    public DbSet<HorarioFuncionamento> HorariosFuncionamento => Set<HorarioFuncionamento>();
+    public DbSet<BloqueioAgenda> Bloqueios => Set<BloqueioAgenda>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
