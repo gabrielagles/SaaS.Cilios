@@ -1,5 +1,3 @@
-using Microsoft.AspNetCore.RateLimiting;
-using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Localization;
@@ -11,29 +9,6 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
-
-builder.Services.AddHttpClient();
-
-// Limite de tentativas por IP nas ações públicas de agendar/cancelar
-builder.Services.AddRateLimiter(options =>
-{
-    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
-    options.OnRejected = async (contexto, token) =>
-    {
-        contexto.HttpContext.Response.ContentType = "text/plain; charset=utf-8";
-        await contexto.HttpContext.Response.WriteAsync(
-            "Muitas tentativas em pouco tempo. Aguarde alguns minutos e tente de novo.", token);
-    };
-    options.AddPolicy("agendar", httpContext =>
-        RateLimitPartition.GetFixedWindowLimiter(
-            httpContext.Connection.RemoteIpAddress?.ToString() ?? "desconhecido",
-            _ => new FixedWindowRateLimiterOptions
-            {
-                PermitLimit = 8,
-                Window = TimeSpan.FromMinutes(10),
-                QueueLimit = 0
-            }));
-});
 
 builder.Services.Configure<ForwardedHeadersOptions>(options =>
 {
@@ -82,8 +57,6 @@ app.UseRequestLocalization(new RequestLocalizationOptions
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
-
-app.UseRateLimiter();
 
 app.UseAuthentication();
 app.UseAuthorization();

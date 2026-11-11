@@ -43,7 +43,7 @@ else
             <div class="appt-summary">
                 <div>
                     <div class="appt-hora">@ag.DataHora.ToString("HH'h'mm") – @ag.Fim.ToString("HH'h'mm")</div>
-                    <div class="appt-cliente">@ag.ClienteNome @if (ag.Origem == OrigemAgendamento.Online) { <span class="online-tag">online</span> }</div>
+                    <div class="appt-cliente">@ag.ClienteNome</div>
                 </div>
                 <div>
                     <div class="appt-servico">@ag.Servico?.Nome</div>
@@ -56,11 +56,8 @@ else
                         <span>Duração: @DuracaoHelper.Texto(ag.DuracaoMinutos)</span>
                         <span>Telefone: @(string.IsNullOrWhiteSpace(ag.ClienteTelefone) ? "não informado" : ag.ClienteTelefone)</span>
                         <span>Status: @(ag.Concluido ? "Concluído" : "Pendente")</span>
-                        <div style="display:flex; flex-wrap:wrap; align-items:center; gap:16px; margin-top:4px;">
+                        <div style="display:flex; gap:16px; margin-top:4px;">
                             <a asp-controller="Agendamento" asp-action="Edit" asp-route-id="@ag.Id" onclick="event.stopPropagation()">Editar</a>
-                            <form asp-controller="Agendamento" asp-action="Cancelar" asp-route-id="@ag.Id" asp-route-retorno="dia" method="post" onclick="event.stopPropagation()" onsubmit="return confirm('Cancelar este agendamento? O horário ficará livre.');" style="display:inline; margin:0;">
-                                <button type="submit" class="link-btn">Cancelar</button>
-                            </form>
                             <a asp-controller="Agendamento" asp-action="Delete" asp-route-id="@ag.Id" onclick="event.stopPropagation()">Excluir</a>
                         </div>
                     </div>
@@ -71,37 +68,6 @@ else
 }
 
 <a asp-action="Create" asp-controller="Agendamento" class="btn-pill" style="display:block; text-align:center; text-decoration:none; margin: 18px 0;">+ Novo agendamento nesse dia</a>
-
-@if (Model.CanceladosDoDia.Any())
-{
-    <div class="section-label">Cancelados neste dia</div>
-    @foreach (var ag in Model.CanceladosDoDia)
-    {
-        var aviso = WhatsAppHelper.Link(ag.ClienteTelefone,
-            $"Olá, {ag.ClienteNome}! Preciso cancelar o seu horário de {ag.Servico?.Nome} no dia {ag.DataHora:dd/MM} às {ag.DataHora:HH'h'mm}. Podemos remarcar?");
-        <div class="appt-card cancelled" style="border-left-color:#B9A9B0; cursor:default;">
-            <div class="appt-summary">
-                <div>
-                    <div class="appt-hora">@ag.DataHora.ToString("HH'h'mm") – @ag.Fim.ToString("HH'h'mm")</div>
-                    <div class="appt-cliente">@ag.ClienteNome @if (ag.Origem == OrigemAgendamento.Online) { <span class="online-tag">online</span> }</div>
-                </div>
-                <div>
-                    <div class="appt-servico">@ag.Servico?.Nome</div>
-                    <div class="appt-valor">R$ @ag.Valor.ToString("N2")</div>
-                </div>
-            </div>
-            <div class="cancel-actions">
-                <form asp-controller="Agendamento" asp-action="Reativar" asp-route-id="@ag.Id" asp-route-retorno="dia" method="post">
-                    <button type="submit" class="link-btn">Reativar</button>
-                </form>
-                @if (aviso != null)
-                {
-                    <a href="@aviso" target="_blank" rel="noopener" class="link-btn">Avisar no WhatsApp</a>
-                }
-            </div>
-        </div>
-    }
-}
 
 @if (Model.OutrosDias.Any())
 {

@@ -21,8 +21,7 @@ public static class AgendaRegras
 
         var candidatos = await context.Agendamentos
             .Include(a => a.Servico)
-            .Where(a => a.Status != StatusAgendamento.Cancelado
-                        && a.DataHora >= janelaInicio && a.DataHora < janelaFim)
+            .Where(a => a.DataHora >= janelaInicio && a.DataHora < janelaFim)
             .ToListAsync();
 
         return candidatos

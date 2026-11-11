@@ -29,17 +29,6 @@
     </a>
 </div>
 
-@{
-    var onlineRecentes = (int)(ViewBag.OnlineRecentes ?? 0);
-}
-@if (onlineRecentes > 0)
-{
-    <a asp-controller="Agendamento" asp-action="Index" class="online-banner">
-        <span><strong>@onlineRecentes</strong> agendamento@(onlineRecentes == 1 ? "" : "s") online nos últimos 2 dias</span>
-        <span>Ver &rarr;</span>
-    </a>
-}
-
 <a asp-controller="Agendamento" asp-action="Create" class="home-primary-action">
     <span class="icon-circle">
         <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14" stroke-linecap="round"/></svg>

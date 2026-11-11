@@ -26,6 +26,5 @@ public class AgendaDiaViewModel
 {
     public DateTime DiaSelecionado { get; set; }
     public List<Agendamento> AgendamentosDoDia { get; set; } = new();
-    public List<Agendamento> CanceladosDoDia { get; set; } = new();
     public List<AgendaDoDia> OutrosDias { get; set; } = new();
 }
