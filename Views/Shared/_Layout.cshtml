@@ -43,6 +43,7 @@
                     <a class="nav-link" asp-controller="Agendamento" asp-action="Index">Agendamentos</a>
                     <a class="nav-link" asp-controller="Agendamento" asp-action="Calendario">Agenda</a>
                     <a class="nav-link" asp-controller="Servico" asp-action="Index">Serviços</a>
+                    <a class="nav-link" asp-controller="Horarios" asp-action="Index">Horários</a>
                     <a class="nav-link" asp-controller="Agendamento" asp-action="Relatorio">Balanço Mensal</a>
                     @if (User.Identity != null && User.Identity.IsAuthenticated)
                     {
@@ -61,6 +62,13 @@
         {
             <div class="alert alert-success alert-dismissible fade show" role="alert">
                 @TempData["Sucesso"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        }
+        @if (TempData["Erro"] != null)
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                @TempData["Erro"]
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
         }
