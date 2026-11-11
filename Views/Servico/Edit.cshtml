@@ -1,9 +1,5 @@
-@inject SaaS.Cilios.Data.AppDbContext Db
 @model Servico
-@{
-    ViewData["Title"] = "Editar Serviço";
-    var cfg = Db.ConfiguracoesAgenda.FirstOrDefault() ?? new ConfiguracaoAgenda();
-}
+@{ ViewData["Title"] = "Editar Serviço"; }
 
 <div class="form-card">
     <h1>Editar Serviço</h1>
@@ -33,9 +29,9 @@
         <div class="field-group">
             <label asp-for="DuracaoMinutos" class="field-label"></label>
             <div class="chip-row">
-                <button type="button" class="chip" data-min="@cfg.PresetRapidoMin">Rápido · @DuracaoHelper.Texto(cfg.PresetRapidoMin)</button>
-                <button type="button" class="chip" data-min="@cfg.PresetMedioMin">Médio · @DuracaoHelper.Texto(cfg.PresetMedioMin)</button>
-                <button type="button" class="chip" data-min="@cfg.PresetDemoradoMin">Demorado · @DuracaoHelper.Texto(cfg.PresetDemoradoMin)</button>
+                <button type="button" class="chip" data-min="30">Rápido · 30 min</button>
+                <button type="button" class="chip" data-min="60">Médio · 1h</button>
+                <button type="button" class="chip" data-min="120">Demorado · 2h</button>
             </div>
             <input asp-for="DuracaoMinutos" id="DuracaoMinutos" type="number" min="5" max="600" step="5" inputmode="numeric" class="input-pill" />
             <span asp-validation-for="DuracaoMinutos" class="text-danger"></span>

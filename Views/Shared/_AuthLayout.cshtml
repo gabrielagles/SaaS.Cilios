@@ -20,14 +20,6 @@
 <body>
     <div class="beauty-shell">
         <div id="offlineBanner" class="offline-banner"></div>
-        @if (TempData["Sucesso"] != null)
-        {
-            <div class="alert alert-success" style="margin-bottom:16px;">@TempData["Sucesso"]</div>
-        }
-        @if (TempData["Erro"] != null)
-        {
-            <div class="alert alert-danger" style="margin-bottom:16px;">@TempData["Erro"]</div>
-        }
         @RenderBody()
     </div>
     <script src="~/js/pwa-register.js"></script>

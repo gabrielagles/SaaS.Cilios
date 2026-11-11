@@ -20,15 +20,9 @@ public class HomeController : Controller
     public async Task<IActionResult> Index()
     {
         var hoje = DateTime.Now.Date;
-
-        var limiteOnline = DateTime.Now.AddDays(-2);
-        ViewBag.OnlineRecentes = await _context.Agendamentos.CountAsync(a =>
-            a.Origem == OrigemAgendamento.Online
-            && a.Status != StatusAgendamento.Cancelado
-            && a.ConsentimentoEm != null && a.ConsentimentoEm >= limiteOnline);
         ViewBag.AgendamentosHoje = await _context.Agendamentos
             .Include(a => a.Servico)
-            .Where(a => a.Status != StatusAgendamento.Cancelado && a.DataHora.Date == hoje)
+            .Where(a => a.DataHora.Date == hoje)
             .OrderBy(a => a.DataHora)
             .ToListAsync();
 

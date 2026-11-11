@@ -15,14 +15,14 @@ namespace SaaS.Cilios.Migrations
                 table: "Servicos",
                 type: "int",
                 nullable: false,
-                defaultValue: 60);
+                defaultValue: 0);
 
             migrationBuilder.AddColumn<int>(
                 name: "DuracaoMinutos",
                 table: "Agendamentos",
                 type: "int",
                 nullable: false,
-                defaultValue: 60);
+                defaultValue: 0);
         }
 
         /// <inheritdoc />
