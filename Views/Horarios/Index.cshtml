@@ -123,12 +123,19 @@
                 <span asp-validation-for="Config.PassoMin" class="text-danger"></span>
             </div>
         </div>
-        <div class="field-group">
-            <label asp-for="Config.WhatsApp" class="field-label"></label>
-            <input asp-for="Config.WhatsApp" type="tel" inputmode="tel" class="input-pill" placeholder="(11) 90000-0000" />
-            <span asp-validation-for="Config.WhatsApp" class="text-danger"></span>
+        <div class="field-row">
+            <div class="field-group">
+                <label asp-for="Config.CancelamentoHoras" class="field-label"></label>
+                <input asp-for="Config.CancelamentoHoras" type="number" min="0" max="168" inputmode="numeric" class="input-pill" />
+                <span asp-validation-for="Config.CancelamentoHoras" class="text-danger"></span>
+            </div>
+            <div class="field-group">
+                <label asp-for="Config.WhatsApp" class="field-label"></label>
+                <input asp-for="Config.WhatsApp" type="tel" inputmode="tel" class="input-pill" placeholder="(11) 90000-0000" />
+                <span asp-validation-for="Config.WhatsApp" class="text-danger"></span>
+            </div>
         </div>
-        <p class="field-note" style="margin-top:-6px;">O intervalo é o tempo livre depois de cada atendimento (limpeza, descanso). O WhatsApp aparece na página pública para a cliente falar com você.</p>
+        <p class="field-note" style="margin-top:-6px;">O intervalo é o tempo livre depois de cada atendimento (limpeza, descanso). A cliente só cancela sozinha até esse número de horas antes do horário. O WhatsApp aparece na página pública para ela falar com você.</p>
 
         <div class="form-actions" style="margin-top:20px;">
             <button type="submit" class="btn-pill">Salvar regras</button>

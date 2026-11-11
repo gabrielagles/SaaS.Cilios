@@ -1,0 +1,59 @@
+@inject SaaS.Cilios.Data.AppDbContext Db
+@{
+    var conta = Db.ConfiguracoesConta.FirstOrDefault();
+    var nome = conta?.NomeExibicao ?? "Rafa";
+    var painel = conta?.NomePainel ?? "Agenda";
+    var inicial = string.IsNullOrEmpty(nome) ? "R" : nome.Substring(0, 1).ToUpper();
+}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>@ViewData["Title"] - @painel</title>
+    @if (ViewData["NoIndex"] is true)
+    {
+        <meta name="robots" content="noindex, nofollow" />
+    }
+    <meta name="theme-color" content="#8A4E63" />
+    <link rel="icon" href="~/icons/icon-192.png" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Alex+Brush&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="~/css/beauty-theme.css" />
+</head>
+<body>
+    <div class="beauty-shell">
+        <div class="public-brand">
+            @if (!string.IsNullOrEmpty(conta?.FotoCaminho))
+            {
+                <img src="@conta.FotoCaminho?v=@conta.FotoVersao" alt="" class="public-avatar"
+                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                <div class="public-avatar" style="display:none;">@inicial</div>
+            }
+            else
+            {
+                <div class="public-avatar">@inicial</div>
+            }
+            <div>
+                <p class="public-eyebrow">Agendamento online</p>
+                <h1 class="public-title">@painel</h1>
+            </div>
+        </div>
+
+        @if (TempData["Sucesso"] != null)
+        {
+            <div class="alert alert-success" style="margin-bottom:16px;">@TempData["Sucesso"]</div>
+        }
+        @if (TempData["Erro"] != null)
+        {
+            <div class="alert alert-danger" style="margin-bottom:16px;">@TempData["Erro"]</div>
+        }
+
+        @RenderBody()
+
+        <p class="public-footer">Seus dados são usados apenas para o seu agendamento.</p>
+    </div>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

@@ -35,6 +35,10 @@ public class ConfiguracaoAgenda
     [Display(Name = "Espaço entre horários oferecidos (min)")]
     public int PassoMin { get; set; } = 30;
 
+    [Range(0, 168, ErrorMessage = "Entre 0 e 168 horas")]
+    [Display(Name = "Cliente cancela até (horas antes)")]
+    public int CancelamentoHoras { get; set; } = 12;
+
     [StringLength(20)]
     [Display(Name = "WhatsApp para contato")]
     public string? WhatsApp { get; set; }

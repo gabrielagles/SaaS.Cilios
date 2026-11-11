@@ -25,6 +25,11 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<Servico>().Property(s => s.Preco).HasPrecision(10, 2);
         modelBuilder.Entity<Agendamento>().Property(a => a.Valor).HasPrecision(10, 2);    
 
+        // O código do link de cancelamento não pode se repetir (vários agendamentos sem código são permitidos)
+        modelBuilder.Entity<Agendamento>()
+            .HasIndex(a => a.CodigoPublico)
+            .IsUnique();
+
         base.OnModelCreating(modelBuilder);
     }
 }

@@ -114,6 +114,7 @@ public class HorariosController : Controller
         existente.AntecedenciaHoras = config.AntecedenciaHoras;
         existente.DiasAFrente = config.DiasAFrente;
         existente.PassoMin = config.PassoMin;
+        existente.CancelamentoHoras = config.CancelamentoHoras;
         existente.WhatsApp = string.IsNullOrWhiteSpace(config.WhatsApp) ? null : config.WhatsApp.Trim();
 
         await _context.SaveChangesAsync();

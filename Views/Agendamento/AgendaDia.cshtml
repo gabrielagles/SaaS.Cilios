@@ -43,7 +43,7 @@ else
             <div class="appt-summary">
                 <div>
                     <div class="appt-hora">@ag.DataHora.ToString("HH'h'mm") – @ag.Fim.ToString("HH'h'mm")</div>
-                    <div class="appt-cliente">@ag.ClienteNome</div>
+                    <div class="appt-cliente">@ag.ClienteNome @if (ag.Origem == OrigemAgendamento.Online) { <span class="online-tag">online</span> }</div>
                 </div>
                 <div>
                     <div class="appt-servico">@ag.Servico?.Nome</div>
@@ -83,7 +83,7 @@ else
             <div class="appt-summary">
                 <div>
                     <div class="appt-hora">@ag.DataHora.ToString("HH'h'mm") – @ag.Fim.ToString("HH'h'mm")</div>
-                    <div class="appt-cliente">@ag.ClienteNome</div>
+                    <div class="appt-cliente">@ag.ClienteNome @if (ag.Origem == OrigemAgendamento.Online) { <span class="online-tag">online</span> }</div>
                 </div>
                 <div>
                     <div class="appt-servico">@ag.Servico?.Nome</div>

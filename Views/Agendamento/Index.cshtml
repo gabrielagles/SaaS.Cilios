@@ -39,7 +39,7 @@ else
                 {
                     <tr class="@(ag.Status == StatusAgendamento.Cancelado ? "row-cancelled" : "")">
                         <td>@ag.DataHora.ToString("dd/MM/yyyy HH:mm") <span class="text-muted">– @ag.Fim.ToString("HH:mm")</span></td>
-                        <td>@ag.ClienteNome</td>
+                        <td>@ag.ClienteNome @if (ag.Origem == OrigemAgendamento.Online) { <span class="online-tag">online</span> }</td>
                         <td><span class="badge" style="background-color:@ag.Servico?.Cor">@ag.Servico?.Nome</span></td>
                         <td>R$ @ag.Valor.ToString("N2")</td>
                         <td>
