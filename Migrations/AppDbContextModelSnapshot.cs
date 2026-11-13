@@ -42,8 +42,15 @@ namespace SaaS.Cilios.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("varchar(20)");
 
+                    b.Property<string>("CodigoPublico")
+                        .HasMaxLength(40)
+                        .HasColumnType("varchar(40)");
+
                     b.Property<bool>("Concluido")
                         .HasColumnType("tinyint(1)");
+
+                    b.Property<DateTime?>("ConsentimentoEm")
+                        .HasColumnType("datetime(6)");
 
                     b.Property<bool>("CriadoOffline")
                         .HasColumnType("tinyint(1)");
@@ -68,6 +75,9 @@ namespace SaaS.Cilios.Migrations
                         .HasColumnType("decimal(10,2)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CodigoPublico")
+                        .IsUnique();
 
                     b.HasIndex("ServicoId");
 
@@ -106,6 +116,9 @@ namespace SaaS.Cilios.Migrations
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<int>("AntecedenciaHoras")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CancelamentoHoras")
                         .HasColumnType("int");
 
                     b.Property<int>("DiasAFrente")
