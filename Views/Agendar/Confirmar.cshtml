@@ -1,0 +1,84 @@
+@inject Microsoft.Extensions.Configuration.IConfiguration Config
+@model AgendarConfirmarViewModel
+@{
+    ViewData["Title"] = "Confirmar agendamento";
+    ViewData["NoIndex"] = true;
+    var siteKey = Config["Turnstile:SiteKey"];
+}
+
+<a class="voltar-link" asp-action="Horarios" asp-route-servicoId="@Model.Servico.Id" asp-route-data="@Model.Inicio.ToString("yyyy-MM-dd")">&lsaquo; Trocar horário</a>
+
+<div class="svc-summary big">
+    <span class="svc-dot" style="background-color:@Model.Servico.Cor"></span>
+    <span class="svc-info">
+        <strong>@Model.Servico.Nome</strong>
+        <span>@Model.Inicio.ToString("dddd, dd 'de' MMMM") às @Model.Inicio.ToString("HH:mm")</span>
+        <span>@Model.Servico.DuracaoTexto · R$ @Model.Servico.Preco.ToString("N2")</span>
+    </span>
+</div>
+
+<h2 class="public-step">Seus dados</h2>
+
+@if (!string.IsNullOrEmpty(Model.Erro))
+{
+    <div class="conflict-box">@Model.Erro</div>
+}
+
+<form asp-action="ConfirmarPost" method="post" class="public-form">
+    <input type="hidden" name="ServicoId" value="@Model.Servico.Id" />
+    <input type="hidden" name="Inicio" value="@Model.Inicio.ToString("yyyy-MM-dd'T'HH:mm")" />
+
+    <div class="hp-field" aria-hidden="true">
+        <label>Não preencha este campo <input type="text" name="Website" tabindex="-1" autocomplete="off" /></label>
+    </div>
+
+    <div class="field-group">
+        <label class="field-label" for="Nome">Seu nome</label>
+        <input type="text" id="Nome" name="Nome" value="@Model.Nome" maxlength="150" class="input-pill" placeholder="Como podemos te chamar?" autocomplete="name" required />
+    </div>
+
+    <div class="field-group">
+        <label class="field-label" for="Telefone">Seu WhatsApp</label>
+        <input type="tel" id="Telefone" name="Telefone" value="@Model.Telefone" inputmode="tel" class="input-pill" placeholder="(11) 91234-5678" autocomplete="tel" required />
+    </div>
+
+    <label class="toggle-row">
+        <input type="checkbox" name="Aceite" value="true" class="toggle-input" />
+        <span class="toggle-track"><span class="toggle-thumb"></span></span>
+        <span class="consent-text">Concordo em informar meu nome e telefone para este agendamento. Eles serão usados só para falar sobre o horário.</span>
+    </label>
+
+    @if (!string.IsNullOrWhiteSpace(siteKey))
+    {
+        <div class="cf-turnstile" data-sitekey="@siteKey" style="margin-bottom:16px;"></div>
+    }
+
+    <div class="form-actions">
+        <button type="submit" class="btn-pill">Confirmar agendamento</button>
+    </div>
+</form>
+
+@section Scripts {
+    @if (!string.IsNullOrWhiteSpace(siteKey))
+    {
+        <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+    }
+    <script>
+        var tel = document.getElementById('Telefone');
+        function formatarTelefone() {
+            var d = tel.value.replace(/\D/g, '').substring(0, 11);
+            var t = d;
+            if (d.length > 6) {
+                var corte = d.length === 11 ? 7 : 6;
+                t = '(' + d.substring(0, 2) + ') ' + d.substring(2, corte) + '-' + d.substring(corte);
+            } else if (d.length > 2) {
+                t = '(' + d.substring(0, 2) + ') ' + d.substring(2);
+            } else if (d.length > 0) {
+                t = '(' + d;
+            }
+            tel.value = t;
+        }
+        tel.addEventListener('input', formatarTelefone);
+        formatarTelefone();
+    </script>
+}

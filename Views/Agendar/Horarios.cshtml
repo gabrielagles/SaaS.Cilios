@@ -1,0 +1,33 @@
+@model AgendarHorariosViewModel
+@{
+    ViewData["Title"] = "Escolha o horário";
+}
+
+<a class="voltar-link" asp-action="Data" asp-route-servicoId="@Model.Servico.Id" asp-route-mes="@Model.Dia.Month" asp-route-ano="@Model.Dia.Year">&lsaquo; Trocar dia</a>
+
+<div class="svc-summary">
+    <span class="svc-dot" style="background-color:@Model.Servico.Cor"></span>
+    <span class="svc-info">
+        <strong>@Model.Servico.Nome</strong>
+        <span>@Model.Servico.DuracaoTexto · R$ @Model.Servico.Preco.ToString("N2")</span>
+    </span>
+</div>
+
+<h2 class="public-step">@Model.Dia.ToString("dddd, dd 'de' MMMM")</h2>
+
+@if (Model.Horarios.Any())
+{
+    <div class="slot-grid">
+        @foreach (var h in Model.Horarios)
+        {
+            <a class="slot" asp-action="Confirmar" asp-route-servicoId="@Model.Servico.Id" asp-route-inicio="@h.ToString("yyyy-MM-dd'T'HH:mm")">@h.ToString("HH:mm")</a>
+        }
+    </div>
+}
+else
+{
+    <div class="table-empty">
+        <span class="script">Sem horários</span>
+        <p>Não há mais horários livres nesse dia.</p>
+    </div>
+}

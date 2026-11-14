@@ -1,0 +1,29 @@
+@model List<Servico>
+@{
+    ViewData["Title"] = "Agende seu horário";
+    var disponivel = ViewBag.Disponivel is bool ok && ok;
+}
+
+<h2 class="public-step">Escolha o procedimento</h2>
+
+@if (!disponivel)
+{
+    <div class="table-empty">
+        <span class="script">Em breve</span>
+        <p>A agenda online ainda não está disponível. Fale com a gente pelo WhatsApp.</p>
+    </div>
+}
+else
+{
+    foreach (var s in Model)
+    {
+        <a class="svc-card" asp-controller="Agendar" asp-action="Data" asp-route-servicoId="@s.Id">
+            <span class="svc-dot" style="background-color:@s.Cor"></span>
+            <span class="svc-info">
+                <strong>@s.Nome</strong>
+                <span>@s.DuracaoTexto</span>
+            </span>
+            <span class="svc-price">R$ @s.Preco.ToString("N2")</span>
+        </a>
+    }
+}
