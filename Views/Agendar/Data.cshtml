@@ -1,0 +1,59 @@
+@model AgendarDataViewModel
+@{
+    ViewData["Title"] = "Escolha o dia";
+    var meses = new[] { "", "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro" };
+    var semana = new[] { "Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sab" };
+}
+
+<a class="voltar-link" asp-action="Index">&lsaquo; Trocar procedimento</a>
+
+<div class="svc-summary">
+    <span class="svc-dot" style="background-color:@Model.Servico.Cor"></span>
+    <span class="svc-info">
+        <strong>@Model.Servico.Nome</strong>
+        <span>@Model.Servico.DuracaoTexto · R$ @Model.Servico.Preco.ToString("N2")</span>
+    </span>
+</div>
+
+<h2 class="public-step">Escolha o dia</h2>
+
+<div class="calendar-card">
+    <div class="calendar-nav">
+        @if (Model.TemAnterior)
+        {
+            <a class="nav-arrow" asp-action="Data" asp-route-servicoId="@Model.Servico.Id" asp-route-mes="@Model.MesAnterior" asp-route-ano="@Model.AnoAnterior">&lsaquo;</a>
+        }
+        else
+        {
+            <span class="nav-arrow disabled">&lsaquo;</span>
+        }
+        <strong class="cal-title">@meses[Model.Mes] @Model.Ano</strong>
+        @if (Model.TemProximo)
+        {
+            <a class="nav-arrow" asp-action="Data" asp-route-servicoId="@Model.Servico.Id" asp-route-mes="@Model.MesSeguinte" asp-route-ano="@Model.AnoSeguinte">&rsaquo;</a>
+        }
+        else
+        {
+            <span class="nav-arrow disabled">&rsaquo;</span>
+        }
+    </div>
+
+    <div class="calendar-grid">
+        @foreach (var nome in semana)
+        {
+            <div class="weekday">@nome</div>
+        }
+        @foreach (var dia in Model.Dias)
+        {
+            if (dia.Livre)
+            {
+                <a class="day free" asp-action="Horarios" asp-route-servicoId="@Model.Servico.Id" asp-route-data="@dia.Data.ToString("yyyy-MM-dd")">@dia.Data.Day</a>
+            }
+            else
+            {
+                <span class="day @(dia.DoMes ? "off" : "muted")">@dia.Data.Day</span>
+            }
+        }
+    </div>
+</div>
+<p class="field-note">Os dias em destaque têm horários livres.</p>
