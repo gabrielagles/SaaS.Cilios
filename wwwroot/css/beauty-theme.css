@@ -932,7 +932,7 @@ button.icon-btn { border: none; cursor: pointer; padding: 0; }
 }
 .public-eyebrow { color: var(--rose-400); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; margin: 0; }
 .public-title { font-size: 1.35rem; color: var(--rose-700); margin: 2px 0 0; }
-.public-step { font-size: 1.1rem; color: var(--rose-700); margin: 20px 0 14px; text-transform: capitalize; }
+.public-step { font-size: 1.1rem; color: var(--rose-700); margin: 20px 0 14px;}
 .public-footer { text-align: center; color: var(--ink-soft); font-size: 0.74rem; margin-top: 30px; }
 .public-form { margin-top: 4px; }
 
@@ -976,7 +976,7 @@ button.icon-btn { border: none; cursor: pointer; padding: 0; }
     background: var(--rose-100); color: var(--rose-600);
     display: flex; align-items: center; justify-content: center;
 }
-.done-when { font-weight: 600; margin: 0 0 4px; text-transform: capitalize; }
+.done-when { font-weight: 600; margin: 0 0 4px;}
 .done-what { color: var(--ink-soft); font-size: 0.88rem; margin: 0 0 4px; }
 .done-who { color: var(--ink-soft); font-size: 0.82rem; margin: 0; }
 .done-note {
@@ -1000,3 +1000,6 @@ button.icon-btn { border: none; cursor: pointer; padding: 0; }
     text-decoration: none; color: var(--ink); font-size: 0.88rem;
 }
 .online-banner span:last-child { color: var(--rose-600); font-weight: 600; white-space: nowrap; }
+
+.cap-first::first-letter,
+.done-when::first-letter { text-transform: uppercase; }
